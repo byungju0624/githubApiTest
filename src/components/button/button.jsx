@@ -8,26 +8,23 @@ const Button = (props) => {
     const octokit = new Octokit({
       headers: {
         accept: "application/vnd.github.v3+json",
-        authorization: `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`,
+        authorization: process.env.REACT_APP_GITHUB_TOKEN_KEY,
       },
     });
     const response = octokit.request(`GET /orgs/{org}/repos`, {
       org: "octokit",
       type: "public",
+      per_page: "10",
     });
     response //
-      .then((res) =>
-        res.data.map((data) =>
-          setUser(
-            user.concat({
-              name: data.full_name,
-              id: data.id,
-              avatar: data.owner.avatar_url,
-            }),
-            console.log(user)
-          )
-        )
-      );
+      .then((res) => {
+        const info = res.data.map((data) => ({
+          name: data.full_name,
+          id: data.id,
+          avatar: data.owner.avatar_url,
+        }));
+        setUser(info);
+      });
   };
   return (
     <div>
