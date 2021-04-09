@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Octokit } from "@octokit/core";
+import CheckBox from "../checkbox/checkbox";
 const Repogitory = (props) => {
   const [user, setUser] = useState([]);
+  const [checkedItems, setCheckedItems] = useState(new Set());
+  const [bChecked, setChecked] = useState(false);
   const octokit = new Octokit({
     headers: {
       accept: "application/vnd.github.v3+json",
@@ -15,21 +18,39 @@ const Repogitory = (props) => {
   });
   response //
     .then((res) => {
-      const info = res.data.map((data) => ({
-        name: data.full_name,
-        id: data.id,
-        avatar: data.owner.avatar_url,
+      const updateUser = res.data.map((u) => ({
+        name: u.full_name,
+        id: u.id,
+        avatar: u.owner.avatar_url,
       }));
-      setUser(info);
+      setUser(updateUser);
     });
+  const checkedItemsHandler = (id, isChecked) => {
+    if (isChecked) {
+      checkedItems.add(id);
+      setCheckedItems(checkedItems);
+    } else if (!isChecked && checkedItems.has(id)) {
+      checkedItems.delete(id);
+      setCheckedItems(checkedItems);
+    }
+  };
+  const checkedHandler = ({ target }) => {
+    setChecked(!bChecked);
+    checkedItemsHandler(user.id, target.checked);
+    console.log(target);
+  };
   return (
     <div>
       {user.map((title) => (
-        <>
-          <li key={title.id}>{title.name}</li>
-          <img src={title.avatar}></img>
-        </>
+        <list>
+          <CheckBox key={title.id}>테스트</CheckBox>
+        </list>
       ))}
+      <input
+        type="checkbox"
+        checked={bChecked}
+        onChange={(e) => checkedHandler(e)}
+      />
     </div>
   );
 };
